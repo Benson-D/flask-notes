@@ -1,29 +1,29 @@
-{% extends 'base.html' %}
-{% block title %} Add Pet {% endblock %}
+{% extends 'base.html' %} {% block title %} Add Pet {% endblock %} {% block
+content %}
+<nav>
+  <ul>
+    <a href="/login">
+      <li>Login</li>
+    </a>
+  </ul>
+</nav>
 
-{% block content %}
-<h1> Register </h1>
+<h1>Register</h1>
 
 <form id="registration-form" method="POST">
-    {{ form.hidden_tag() }}
-    <!--add type=hidden form fields -->
+  {{ form.hidden_tag() }}
+  <!--add type=hidden form fields -->
 
-    {% for field in form
-    if field.widget.input_type != 'hidden' %}
+  {% for field in form if field.widget.input_type != 'hidden' %}
 
-    <p>
-        {{ field.label }}
-        {{ field }}
+  <p>
+    {{ field.label }} {{ field }} {% for error in field.errors %} {{ error }} {%
+    endfor %}
+  </p>
 
-        {% for error in field.errors %}
-        {{ error }}
-        {% endfor %}
-    </p>
+  {% endfor %}
 
-    {% endfor %}
-
-    <button type="submit">Submit</button>
+  <button type="submit">Submit</button>
 </form>
-
 
 {% endblock %}

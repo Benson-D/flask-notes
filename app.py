@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, session
+from flask import Flask, redirect, render_template, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 
 from forms import RegistrationForm, LoginForm
@@ -39,13 +39,14 @@ def display_register():
         last_name = form.last_name.data
 
         # breakpoint()
-        User.register(username, password, email, first_name, last_name)
+        user = User.register(username, password, email, first_name, last_name)
 
-        session["username"] = username # keep logged in
+        session["username"] = user.username # keep logged in
 
+        db.session.add(user)
         db.session.commit()
 
-        return redirect('/secret')
+        return redirect(f'users/{username}')
 
     else: 
         return render_template('register.html', form=form)
@@ -62,12 +63,34 @@ def login():
 
         user = User.authenticate(username, password)
         if user:
-            session["username"] = username # keep logged in
-            return redirect('/secret')
+            session["username"] = user.username # keep logged in
+            return redirect(f'/users/{username}')
         else:
             form.username.errors = ["Incorrect username or password."]
     return render_template("login_form.html", form=form)
     
-@app.get("/secret")
-def secret_page():
-    return render_template("secret.html")
+@app.get("/users/<username>")
+def secret_page(username):
+
+    if "username" not in session:
+        flash("You must be logged in to view!")
+        return redirect("/")
+
+        # alternatively, can return HTTP Unauthorized status:
+        #
+        # from werkzeug.exceptions import Unauthorized
+        # raise Unauthorized()
+
+    else:
+
+        user = User.query.get(username)
+        return render_template('user.html', user=user)
+
+@app.post("/logout")
+def logout():
+    """Logs user out and redirects to homepage."""
+
+    # Remove "user_id" if present, but no errors if it wasn't
+    session.pop("username", None)
+
+    return redirect("/")

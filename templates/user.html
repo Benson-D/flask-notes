@@ -1,0 +1,12 @@
+{% extends 'base.html' %} {% block title %} Secret {% endblock %} {% block
+content %}
+<h1>Welcome {{user.first_name}} {{user.last_name}}!</h1>
+
+<p>Username: {{user.username}}</p>
+<p>Email: {{user.email}}</p>
+
+<form action="/logout" method="POST">
+  <button>Logout</button>
+</form>
+
+{% endblock %}
