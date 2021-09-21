@@ -1,7 +1,7 @@
-from flask import Flask, redirect, render_template
+from flask import Flask, redirect, render_template, session
 from flask_debugtoolbar import DebugToolbarExtension
 
-from forms import RegistrationForm
+from forms import RegistrationForm, LoginForm
 from models import connect_db, db, User
 
 
@@ -38,11 +38,36 @@ def display_register():
         first_name = form.first_name.data
         last_name = form.last_name.data
 
+        # breakpoint()
         User.register(username, password, email, first_name, last_name)
 
+        session["username"] = username # keep logged in
+
         db.session.commit()
+
         return redirect('/secret')
 
     else: 
         return render_template('register.html', form=form)
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Displays register form html"""
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        user = User.authenticate(username, password)
+        if user:
+            session["username"] = username # keep logged in
+            return redirect('/secret')
+        else:
+            form.username.errors = ["Incorrect username or password."]
+    return render_template("login_form.html", form=form)
+    
+@app.get("/secret")
+def secret_page():
+    return render_template("secret.html")
