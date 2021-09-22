@@ -5,8 +5,11 @@ content %}
 <p>Username: {{user.username}}</p>
 <p>Email: {{user.email}}</p>
 
+
 <form action="/logout" method="POST">
+    {{ form.hidden_tag() }}
   <button>Logout</button>
+  
 </form>
 
 {% endblock %}

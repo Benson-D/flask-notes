@@ -1,7 +1,7 @@
 from flask import Flask, redirect, render_template, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 
-from forms import RegistrationForm, LoginForm
+from forms import RegistrationForm, LoginForm, CSRFOnlyForm
 from models import connect_db, db, User
 
 
@@ -67,6 +67,7 @@ def login():
             return redirect(f'/users/{username}')
         else:
             form.username.errors = ["Incorrect username or password."]
+            # Give more breathing room for readability
     return render_template("login_form.html", form=form)
     
 @app.get("/users/<username>")
@@ -83,14 +84,18 @@ def secret_page(username):
 
     else:
 
-        user = User.query.get(username)
-        return render_template('user.html', user=user)
+        form = CSRFOnlyForm()        
+        user = User.query.get_or_404(username)
+        return render_template('user.html', user=user, form=form)
 
 @app.post("/logout")
 def logout():
     """Logs user out and redirects to homepage."""
 
-    # Remove "user_id" if present, but no errors if it wasn't
-    session.pop("username", None)
+    form = CSRFOnlyForm()
+
+    if form.validate_on_submit():
+        session.pop("username", None)
+    
 
     return redirect("/")

@@ -48,6 +48,10 @@ class User(db.Model):
             first_name=first_name, 
             last_name=last_name
             )
+
+            # Have the class = to a variable (user)
+            # use db.session.add(user) alot cleaner and less redundent
+        
     
     @classmethod
     def authenticate(cls, username, pwd):
@@ -56,7 +60,8 @@ class User(db.Model):
         Return user if valid; else return False.
         """
 
-        user = cls.query.filter_by(username=username).one_or_none()
+        # User.one_none is fine with an id, but here it's better with .get()
+        user = cls.query.get(username)
 
         if user and bcrypt.check_password_hash(user.password, pwd):
             # return user instance
